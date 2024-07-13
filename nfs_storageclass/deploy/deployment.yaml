@@ -1,0 +1,41 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-client-provisioner
+  labels:
+    app: nfs-client-provisioner
+  # replace with namespace where provisioner is deployed
+  namespace: <namespace-name>
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+#          image: registry.k8s.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2
+          image: groundhog2k/nfs-subdir-external-provisioner:v3.2.0
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: storage.io/nfs 
+            - name: NFS_SERVER
+              value: <ip_nfs_server>
+            - name: NFS_PATH
+              value: <path_nfs_server>
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: <ip_nfs_server>
+            path: <path_nfs_server>
