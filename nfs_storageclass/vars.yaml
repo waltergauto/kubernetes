@@ -1,0 +1,12 @@
+---
+nfs_shared_directory:
+packages:
+  - nfs-server
+  - policycoreutils-python-utils
+  - nfs-utils
+services:
+  - nfs-server
+  - rpcbind
+booleans:
+  - nfs_export_all_rw
+  - nfs_export_all_ro

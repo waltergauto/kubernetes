@@ -12,9 +12,10 @@
 
     - name: Enable tcp ports on firewall (master node)
       ansible.posix.firewalld:
-        port: "{{ item }}/udp"
+        port: "{{ item }}/tcp"
         permanent: true
         state: enabled
+        immediate: true
       loop:
         - 6443
         - 2379
@@ -32,6 +33,7 @@
         port: "{{ item }}/tcp"
         permanent: true
         state: enabled
+        immediate: true
       loop:
         - 179
         - 10250
@@ -42,6 +44,7 @@
         port: 4789/udp
         permanent: true
         state: enabled
+        immediate: true
 
     - name: Add file
       ansible.builtin.blockinfile:

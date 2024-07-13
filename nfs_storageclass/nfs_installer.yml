@@ -1,0 +1,53 @@
+---
+- name: Install and configure NFS server
+  hosts: nfs-server
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Install nfs-server on {{ inventory_hostname }}
+      ansible.builtin.dnf:
+        name: "{{ packages }}"
+        state: present
+    
+    - name: Create shared directory
+      ansible.builtin.file:
+        name: "{{ nfs_shared_directory }}"
+        state: present
+        type: directory
+        mode: '0755'
+
+    - name: Configure exportfs file
+      ansible.builtin.copy:
+        content: "{{ nfs_shared_directory }}     *(rw,sync,no_wdelay,no_root_squash,insecure)"
+        dest: /etc/exportfs
+    
+    - name: Up and run nfs service
+      ansible.builtin.service:
+        name: "{{ services }}"
+        state: started
+        enabled: true
+      loop: "{{ services }}"
+
+    - name: Configure boolean policies
+      ansible.posix.seboolean:
+        name: "{{ item }}" 
+        state: true
+        persistent: true
+      loop: "{{ booleans }}"
+
+    - name: Reset security context on {{ nfs_shared_directory }}
+      ansible.builtin.command:
+        cmd: restorecon -Rv {{ nfs_shared_directory }}
+
+    - name: Allow nfs to modify files in {{ nfs_shared_directory }}
+      community.general.sefcontext:
+        target: "{{ nfs_shared_directory }}/(/.*)?"
+        setype: public_content_rw_t
+        state: present
+    
+    - name: Configure firewall to allow nfs service
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+      loop: "{{ services }}"
