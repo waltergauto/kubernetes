@@ -17,6 +17,9 @@ spec:
         requests:
           cpu: "500m"
           memory: "128Mi"
+        requests:
+          cpu: "1000m"
+          memory: "256Mi"
       ports:
         - containerPort: 8080
           name: http
