@@ -12,8 +12,7 @@
     - name: Create shared directory
       ansible.builtin.file:
         name: "{{ nfs_shared_directory }}"
-        state: present
-        type: directory
+        state: directory
         mode: '0755'
 
     - name: Configure exportfs file
@@ -23,10 +22,9 @@
     
     - name: Up and run nfs service
       ansible.builtin.service:
-        name: "{{ services }}"
+        name: "{{ service }}"
         state: started
         enabled: true
-      loop: "{{ services }}"
 
     - name: Configure boolean policies
       ansible.posix.seboolean:
@@ -50,4 +48,4 @@
         service: "{{ item }}"
         permanent: true
         state: enabled
-      loop: "{{ services }}"
+      loop: "{{ services_firewalld }}"

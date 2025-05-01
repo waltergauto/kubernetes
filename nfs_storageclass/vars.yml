@@ -1,12 +1,13 @@
 ---
-nfs_shared_directory:
+nfs_shared_directory: /opt/data
 packages:
-  - nfs-server
   - policycoreutils-python-utils
   - nfs-utils
-services:
-  - nfs-server
-  - rpcbind
+service: nfs-server
 booleans:
   - nfs_export_all_rw
   - nfs_export_all_ro
+services_firewalld:
+  - mountd
+  - nfs
+  - rpc-bind
